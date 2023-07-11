@@ -1,0 +1,42 @@
+---
+production: &default
+  environment: production
+  puerto: 3001
+  enlace: '0.0.0.0'
+  servidor:
+    mongo:
+      coopeartiva:
+        nombre: MONGO_NOMBRE
+        direccion: MONGO_DIRECCION
+        puerto: MONGO_PUERTO
+        basedatos: MONGO_DB
+        usuario: MONGO_USUARIO
+        clave: MONGO_CLAVE
+  cadenas:
+    mensajes:
+      dominio:
+        presidencia: '@presidencia.gob.ec'
+      archivos:
+        nombrePdf:
+          comun: firmado
+        extension:
+          png: .png
+      firmas:
+        firmadopor: Firmado por
+        fecha: Fecha
+        digital:
+          razon: Firma Documento
+          localizacion: Presidencia de la Repùblica
+      qr:
+        colores:
+          dark: '#00F'
+          light: '#0000'
+stage: &stage
+  <<: *default
+
+test: &latest
+  <<: *stage
+
+development:
+  <<: *latest
+  environment: development
