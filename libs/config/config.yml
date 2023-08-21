@@ -1,7 +1,7 @@
 ---
 production: &default
   environment: production
-  puerto: 3001
+  puerto: 3002
   enlace: '0.0.0.0'
   servidor:
     mongo:

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "ms-js_cooperativa",
+    "cwd": "./dist/src",
+    "script": "main.js",
+    "instances": 2,
+    "watch": [
+      "./dist"
+    ],        
+    "ignore_watch": [
+      "./node_modules",
+      "./dist"
+    ],
+    "env": {
+      "NODE_ENV": "development",
+      "MONGO_NOMBRE": "conncoop",
+      "MONGO_DIRECCION": "localhost",
+      "MONGO_PUERTO": "2718",
+      "MONGO_DB": "cooperativa",
+      "MONGO_USUARIO": "root",
+      "MONGO_CLAVE": "root123"
+    }
+  }
+]
