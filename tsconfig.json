@@ -21,6 +21,7 @@
       "@app/*": ["./*"],
       "@controllers/*": ["src/controllers/*"],
       "@decorators/*": ["src/decorators/*"],
+      "@filters/*": ["src/filters/*"],
       "@models/*": ["src/models/*"],
       "@modules/*": ["src/modules/*"],
       "@services/*": ["src/services/*"]
