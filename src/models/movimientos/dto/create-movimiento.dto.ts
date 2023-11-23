@@ -1,4 +1,5 @@
 export class CreateMovimientoDto {
+  id: string;
   tipo: string;
   descripcion: string;
   valor: number;

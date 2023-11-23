@@ -17,9 +17,12 @@ export class MovimientosService {
     try {
       // * desestructura los parámetros...
       // * recoge el usuario...
-      const { tipo, valor, imagen, usuario } = createMovimientoDto;
+      const { id, tipo, descripcion, valor, imagen, usuario } =
+        createMovimientoDto;
       // * retornamos el objeto...
       return this.movimientoEntity.create({
+        usuario_id: id,
+        descripcion,
         tipo,
         valor,
         imagen,
