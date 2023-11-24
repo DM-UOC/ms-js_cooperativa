@@ -1,9 +1,13 @@
+import { IsInt, IsNumber } from 'class-validator';
+
 export class CreateMovimientoDto {
   readonly id: string;
   readonly tipo: string;
   readonly descripcion: string;
-  readonly valor: number;
-  readonly imagen: string;
+  @IsInt()
+  readonly valor: string;
+  readonly imagen: any;
   readonly usuario: string;
-  saldo: number = 0;
+  @IsInt()
+  saldo = 0;
 }

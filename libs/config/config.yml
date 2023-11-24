@@ -40,3 +40,14 @@ test: &latest
 development:
   <<: *latest
   environment: development
+  microservicios:
+    cooperativa:
+      alias: MS_COOPERATIVA
+      nombre: '0.0.0.0'
+      puerto: 3002
+      procesos:
+        movimientos:
+          usuario:
+            crear: movimiento_crear_usuario
+            retiro:
+              verifica: movimiento_retiro_verifica_usuario

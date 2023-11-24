@@ -9,20 +9,24 @@ import {
   ENUM_MOVIMIENTOS,
   ENUM_MOVIMIENTOS_DESCRIPCION,
 } from './enum.movimiento';
+import { IsNumber } from 'class-validator';
 
 function seteaPropiedadesIngreso(ref: MovimientoEntity) {
   // * identificadores de movimiento...
   ref.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.INGRESO;
   ref.tipo_descripcion = ENUM_MOVIMIENTOS_DESCRIPCION.DEPOSTIO;
-  // * suma el saldo...
-  ref.saldo += ref.valor;
+}
+
+function seteaPropiedadesEgreso(ref: MovimientoEntity) {
+  // * identificadores de movimiento...
+  ref.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.EGRESO;
+  ref.tipo_descripcion = ENUM_MOVIMIENTOS_DESCRIPCION.RETIRO;
 }
 
 
 @pre<MovimientoEntity>('save', function() {
   if (this.tipo === 'DEP') seteaPropiedadesIngreso(this);
-  if (this.tipo === 'RET') this.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.EGRESO;
-  if (this.tipo === 'RET') this.tipo_descripcion = ENUM_MOVIMIENTOS_DESCRIPCION.RETIRO;
+  if (this.tipo === 'RET') seteaPropiedadesEgreso(this);
 })
 
 export class MovimientoEntity {
@@ -31,8 +35,10 @@ export class MovimientoEntity {
   usuario_id!: string;
   @prop({ trim: true })
   descripcion: string;
+  @IsNumber()
   @prop({ default: 0 })
   saldo: number;
+  @IsNumber()
   @prop({ default: 0 })
   valor: number;
   @prop({ enum: ENUM_MOVIMIENTOS })
