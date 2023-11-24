@@ -33,7 +33,7 @@ export class MovimientosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.movimientosService.findOne(+id);
+    return this.movimientosService.findOne(id);
   }
 
   @Patch(':id')

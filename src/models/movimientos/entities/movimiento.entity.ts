@@ -7,11 +7,22 @@ import { ImagenEntity } from '@models/comun/entities/imagen.entity';
 import {
   ENUM_IDENTICADOR_MOVIMIENTOS,
   ENUM_MOVIMIENTOS,
+  ENUM_MOVIMIENTOS_DESCRIPCION,
 } from './enum.movimiento';
 
+function seteaPropiedadesIngreso(ref: MovimientoEntity) {
+  // * identificadores de movimiento...
+  ref.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.INGRESO;
+  ref.tipo_descripcion = ENUM_MOVIMIENTOS_DESCRIPCION.DEPOSTIO;
+  // * suma el saldo...
+  ref.saldo += ref.valor;
+}
+
+
 @pre<MovimientoEntity>('save', function() {
-  if (this.tipo === 'DEP') this.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.INGRESO;
+  if (this.tipo === 'DEP') seteaPropiedadesIngreso(this);
   if (this.tipo === 'RET') this.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.EGRESO;
+  if (this.tipo === 'RET') this.tipo_descripcion = ENUM_MOVIMIENTOS_DESCRIPCION.RETIRO;
 })
 
 export class MovimientoEntity {
@@ -28,6 +39,8 @@ export class MovimientoEntity {
   tipo: ENUM_MOVIMIENTOS;
   @prop({ enum: ENUM_IDENTICADOR_MOVIMIENTOS })
   tipo_movimiento: ENUM_IDENTICADOR_MOVIMIENTOS;
+  @prop({ enum: ENUM_MOVIMIENTOS_DESCRIPCION })
+  tipo_descripcion: ENUM_MOVIMIENTOS_DESCRIPCION;  
   @prop({ type: ImagenEntity, _id: false })
   imagen?: ImagenEntity;
   @prop({ default: true })

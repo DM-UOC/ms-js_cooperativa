@@ -13,12 +13,18 @@ export class MovimientosService {
     private readonly movimientoEntity: ReturnModelType<typeof MovimientoEntity>,
   ) {}
 
-  create(createMovimientoDto: CreateMovimientoDto) {
+  async create(createMovimientoDto: CreateMovimientoDto) {
     try {
       // * desestructura los parámetros...
       // * recoge el usuario...
       const { id, tipo, descripcion, valor, imagen, usuario } =
         createMovimientoDto;
+      // * recogemos el saldo...
+      let { saldo } = createMovimientoDto;
+      // * verifica si tiene registros...
+      const ultimoMovimiento = await this.findOne(id);
+      // * si existe registro recoge el último saldo...
+      if(ultimoMovimiento) saldo = ultimoMovimiento.saldo;
       // * retornamos el objeto...
       return this.movimientoEntity.create({
         usuario_id: id,
@@ -39,8 +45,11 @@ export class MovimientosService {
     return `This action returns all movimientos`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} movimiento`;
+  async findOne(id: string) {
+    return await this.movimientoEntity.findOne({
+      usuario_id: id,
+      ultimo: true      
+    })
   }
 
   update(id: number, updateMovimientoDto: UpdateMovimientoDto) {
