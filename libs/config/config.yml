@@ -31,6 +31,21 @@ production: &default
         colores:
           dark: '#00F'
           light: '#0000'
+  microservicios:
+    cooperativa:
+      alias: MS_COOPERATIVA
+      nombre: '0.0.0.0'
+      puerto: 3002
+      movimientos:
+        transaccion:
+          retiro: ret
+          deposito: dep
+      procesos:
+        movimientos:
+          usuario:
+            crear: movimiento_crear_usuario
+            retiro:
+              verifica: movimiento_retiro_verifica_usuario
 stage: &stage
   <<: *default
 
@@ -45,6 +60,10 @@ development:
       alias: MS_COOPERATIVA
       nombre: '0.0.0.0'
       puerto: 3002
+      movimientos:
+        transaccion:
+          retiro: ret
+          deposito: dep
       procesos:
         movimientos:
           usuario:

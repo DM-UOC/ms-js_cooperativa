@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
+import { ConfigService } from '@nestjs/config';
 
 import { CreateMovimientoDto } from '@models/movimientos/dto/create-movimiento.dto';
 import { UpdateMovimientoDto } from '@models/movimientos/dto/update-movimiento.dto';
@@ -12,6 +13,7 @@ export class MovimientosService {
   constructor(
     @InjectModel(MovimientoEntity)
     private readonly movimientoEntity: ReturnModelType<typeof MovimientoEntity>,
+    private readonly configService: ConfigService,
   ) {}
 
   private async verificaUltimoMovimiento(
@@ -105,10 +107,21 @@ export class MovimientosService {
     return `This action removes a #${id} movimiento`;
   }
 
-  verificaRetiro(verificaRetiroMovimientoDto: VerificaRetiroMovimientoDto) {
+  async verificaRetiro(
+    verificaRetiroMovimientoDto: VerificaRetiroMovimientoDto,
+  ) {
     try {
+      const tipoTransaccion = this.configService.get<string>(
+        'microservicios.movimientos.transaccion.retiro',
+      );
       // * desestructura el objeto...
-      const { usuario_id, valor } = verificaRetiroMovimientoDto;
+      const { usuario_id, tipo, valor } = verificaRetiroMovimientoDto;
+      // * se ejecuta la validación si es retiro...
+      if (tipo !== tipoTransaccion) return null;
+      // * retorna la última transacción del usuario...
+      const movimientoEntity = await this.findOne(usuario_id);
+      // * si no tiene movimientos... no puede realizar un retiro
+      if (!movimientoEntity) return { desautorizado: true };
     } catch (error) {
       throw error;
     }
