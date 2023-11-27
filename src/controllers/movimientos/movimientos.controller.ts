@@ -41,4 +41,20 @@ export class MovimientosController {
       throw error;
     }
   }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario
+      .ultimo,
+  })
+  ultimoMovimientoPorUsuarioId(@Body() id: string) {
+    return this.movimientosService.ultimoMovimientoPorUsuarioId(id);
+  }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario
+      .ultimo,
+  })
+  movimientosPorUsuarioId(@Body() id: string) {
+    return this.movimientosService.ultimoMovimientoPorUsuarioId(id);
+  }
 }

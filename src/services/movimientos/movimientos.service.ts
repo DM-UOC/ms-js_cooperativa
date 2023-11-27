@@ -7,6 +7,7 @@ import { CreateMovimientoDto } from '@models/movimientos/dto/create-movimiento.d
 import { UpdateMovimientoDto } from '@models/movimientos/dto/update-movimiento.dto';
 import { MovimientoEntity } from '@models/movimientos/entities/movimiento.entity';
 import { VerificaRetiroMovimientoDto } from '@models/movimientos/dto/verificaretirno-ms-movimiento.dto';
+import { MovimientoUsuarioDto } from '@models/movimientos/dto/movimiento.usuario.dto';
 
 @Injectable()
 export class MovimientosService {
@@ -88,15 +89,28 @@ export class MovimientosService {
     }
   }
 
-  findAll() {
-    return `This action returns all movimientos`;
-  }
-
-  async findOne(usuario_id: string) {
-    return await this.movimientoEntity.findOne({
+  findAll(usuario_id: string) {
+    return this.movimientoEntity.find({
       usuario_id,
       ultimo: true,
     });
+  }
+
+  findOne(usuario_id: string) {
+    return this.movimientoEntity.findOne({
+      usuario_id,
+      ultimo: true,
+    });
+  }
+
+  ultimoMovimientoPorUsuarioId(id: string) {
+    // * retorna el usuario...
+    return this.findOne(id);
+  }
+
+  movimientoPorUsuarioId(id: string) {
+    // * retorna el usuario...
+    return this.findAll(id);
   }
 
   update(id: number, updateMovimientoDto: UpdateMovimientoDto) {
@@ -123,7 +137,7 @@ export class MovimientosService {
       // * si no tiene movimientos... no puede realizar un retiro
       if (!movimientoEntity) return { autorizado: true };
       // * verifica si el valor no es mayo al saldo...
-      if(movimientoEntity.saldo <= +valor) return { autorizado: true };
+      if (movimientoEntity.saldo <= +valor) return { autorizado: true };
       // * no es mayor y puede retirar...
       return null;
     } catch (error) {

@@ -44,6 +44,8 @@ production: &default
         movimientos:
           usuario:
             crear: movimiento_crear_usuario
+            ultimo: movimiento_ultimo_usuario
+            todos: movimiento_todos_usuario
             retiro:
               verifica: movimiento_retiro_verifica_usuario
 stage: &stage
@@ -68,5 +70,7 @@ development:
         movimientos:
           usuario:
             crear: movimiento_crear_usuario
+            ultimo: movimiento_ultimo_usuario
+            todos: movimiento_todos_usuario
             retiro:
               verifica: movimiento_retiro_verifica_usuario
