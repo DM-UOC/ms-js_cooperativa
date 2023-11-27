@@ -112,16 +112,20 @@ export class MovimientosService {
   ) {
     try {
       const tipoTransaccion = this.configService.get<string>(
-        'microservicios.movimientos.transaccion.retiro',
+        'microservicios.cooperativa.movimientos.transaccion.retiro',
       );
       // * desestructura el objeto...
       const { usuario_id, tipo, valor } = verificaRetiroMovimientoDto;
       // * se ejecuta la validación si es retiro...
-      if (tipo !== tipoTransaccion) return null;
+      if (tipo.toLowerCase() !== tipoTransaccion.toLowerCase()) return null;
       // * retorna la última transacción del usuario...
       const movimientoEntity = await this.findOne(usuario_id);
       // * si no tiene movimientos... no puede realizar un retiro
-      if (!movimientoEntity) return { desautorizado: true };
+      if (!movimientoEntity) return { autorizado: true };
+      // * verifica si el valor no es mayo al saldo...
+      if(movimientoEntity.saldo <= +valor) return { autorizado: true };
+      // * no es mayor y puede retirar...
+      return null;
     } catch (error) {
       throw error;
     }
