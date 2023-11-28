@@ -28,6 +28,18 @@ export class MovimientosController {
 
   @MessagePattern({
     cmd: config().microservicios.cooperativa.procesos.movimientos.usuario.retiro
+      .crear,
+  })
+  crearRetiro(@Body() createMovimientoDto: CreateMovimientoDto) {
+    try {
+      return this.movimientosService.crearRetiro(createMovimientoDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario.retiro
       .verifica,
   })
   verificaRetiro(
@@ -51,10 +63,9 @@ export class MovimientosController {
   }
 
   @MessagePattern({
-    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario
-      .ultimo,
+    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario.todos,
   })
   movimientosPorUsuarioId(@Body() id: string) {
-    return this.movimientosService.ultimoMovimientoPorUsuarioId(id);
+    return this.movimientosService.movimientoPorUsuarioId(id);
   }
 }

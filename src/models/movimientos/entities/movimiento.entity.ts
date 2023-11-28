@@ -47,7 +47,7 @@ export class MovimientoEntity {
   tipo_movimiento: ENUM_IDENTICADOR_MOVIMIENTOS;
   @prop({ enum: ENUM_MOVIMIENTOS_DESCRIPCION })
   tipo_descripcion: ENUM_MOVIMIENTOS_DESCRIPCION;  
-  @prop({ type: ImagenEntity, _id: false })
+  @prop({ type: ImagenEntity, _id: false, default: new ImagenEntity() })
   imagen?: ImagenEntity;
   @prop({ default: true })
   aprobado: boolean;

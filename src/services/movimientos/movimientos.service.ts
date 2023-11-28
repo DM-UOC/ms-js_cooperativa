@@ -66,7 +66,7 @@ export class MovimientosService {
     try {
       // * desestructura los parámetros...
       // * recoge el usuario...
-      const { id, tipo, descripcion, valor, imagen, usuario } =
+      const { id, tipo, descripcion, aprobado, valor, imagen, usuario } =
         createMovimientoDto;
       // * proceso de chequeo de último registro...
       await this.verificaUltimoMovimiento(createMovimientoDto);
@@ -79,7 +79,30 @@ export class MovimientosService {
         tipo,
         valor,
         saldo,
+        aprobado,
         imagen,
+        auditoria: {
+          usuario_ingresa: usuario,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async crearRetiro(createMovimientoDto: CreateMovimientoDto) {
+    try {
+      // * desestructura los parámetros...
+      const { id, tipo, descripcion, aprobado, valor, usuario } =
+        createMovimientoDto;
+      // * retornamos el objeto...
+      return this.movimientoEntity.create({
+        usuario_id: id,
+        descripcion,
+        tipo,
+        valor,
+        aprobado,
+        ultimo: false,
         auditoria: {
           usuario_ingresa: usuario,
         },
@@ -92,7 +115,8 @@ export class MovimientosService {
   findAll(usuario_id: string) {
     return this.movimientoEntity.find({
       usuario_id,
-      ultimo: true,
+      aprobado: true,
+      'auditoria.activo': true,
     });
   }
 
