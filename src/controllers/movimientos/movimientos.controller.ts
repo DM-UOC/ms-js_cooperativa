@@ -68,4 +68,12 @@ export class MovimientosController {
   movimientosPorUsuarioId(@Body() id: string) {
     return this.movimientosService.movimientoPorUsuarioId(id);
   }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.retiros
+      .general,
+  })
+  movimientosRetiros() {
+    return this.movimientosService.movimientosRetiros();
+  }
 }

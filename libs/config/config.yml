@@ -42,6 +42,8 @@ production: &default
           deposito: dep
       procesos:
         movimientos:
+          retiros:
+            general: movimientos_retiros
           usuario:
             crear: movimiento_crear_usuario
             ultimo: movimiento_ultimo_usuario
@@ -69,6 +71,8 @@ development:
           deposito: dep
       procesos:
         movimientos:
+          retiros:
+            general: movimientos_retiros
           usuario:
             crear: movimiento_crear_usuario
             ultimo: movimiento_ultimo_usuario

@@ -137,6 +137,73 @@ export class MovimientosService {
     return this.findAll(id);
   }
 
+  private async retornaConsultaAggregate(
+    arregloAggregate: Array<any>,
+  ): Promise<MovimientoEntity[]> {
+    try {
+      return await this.movimientoEntity.aggregate(arregloAggregate);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private retornaConsultaAggregateRetiros(): Array<any> {
+    return [
+      {
+        $match: {
+          tipo: {
+            $regex: 'ret',
+            $options: 'i',
+          },
+          'auditoria.activo': true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'usuarios',
+          let: {
+            userId: { $toObjectId: '$usuario_id' },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$userId'],
+                },
+              },
+            },
+          ],
+          as: 'usuario',
+        },
+      },
+      {
+        $project: {
+          descripcion: 1,
+          tipo_movimiento: 1,
+          tipo_descripcion: 1,
+          aprobado: 1,
+          saldo: 1,
+          valor: 1,
+          auditoria: 1,
+          usuario: {
+            nombre_completo: 1,
+          },
+        },
+      },
+    ];
+  }
+
+  movimientosRetiros() {
+    try {
+      // * filtro de búsqueda...
+      const filtro = this.retornaConsultaAggregateRetiros();
+      // * retorna el consulta retiros...
+      return this.retornaConsultaAggregate(filtro);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   update(id: number, updateMovimientoDto: UpdateMovimientoDto) {
     return `This action updates a #${id} movimiento`;
   }

@@ -51,8 +51,9 @@ export class MovimientoEntity {
   imagen?: ImagenEntity;
   @prop({ default: true })
   aprobado: boolean;
-  @prop({ default: true })
   ultimo: boolean;
+  @prop({ default: '' })
+  observacion: string;
   @prop({ type: AuditoriaEntity, _id: false, default: new AuditoriaEntity() })
   auditoria?: AuditoriaEntity;
 
