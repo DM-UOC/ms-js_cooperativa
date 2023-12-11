@@ -5,6 +5,7 @@ import { ExceptionFilter } from '@filters/exception-filter/exception-filter';
 
 import { CreateMovimientoDto } from '@models/movimientos/dto/create-movimiento.dto';
 import { VerificaRetiroMovimientoDto } from '@models/movimientos/dto/verificaretirno-ms-movimiento.dto';
+import { AceptarRetiroMovimientoDto } from '@models/movimientos/dto/aceptar.retiro-movimiento.dto';
 
 import { MovimientosService } from '@services/movimientos/movimientos.service';
 
@@ -31,6 +32,30 @@ export class MovimientosController {
       .crear,
   })
   crearRetiro(@Body() createMovimientoDto: CreateMovimientoDto) {
+    try {
+      return this.movimientosService.crearRetiro(createMovimientoDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario.retiro
+      .aceptar,
+  })
+  aceptarRetiro(@Body() aceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
+    try {
+      return this.movimientosService.aceptarRetiro(aceptarRetiroMovimientoDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.usuario.retiro
+      .eliminar,
+  })
+  eliminarRetiro(@Body() createMovimientoDto: CreateMovimientoDto) {
     try {
       return this.movimientosService.crearRetiro(createMovimientoDto);
     } catch (error) {

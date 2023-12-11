@@ -50,6 +50,8 @@ production: &default
             todos: movimiento_todos_usuario
             retiro:
               crear: movimiento_retiro_crear_usuario
+              aceptar: movimiento_retiro_aceptar_usuario
+              eliminar: movimiento_retiro_eliminar_usuario                  
               verifica: movimiento_retiro_verifica_usuario
 stage: &stage
   <<: *default
@@ -79,4 +81,6 @@ development:
             todos: movimiento_todos_usuario
             retiro:
               crear: movimiento_retiro_crear_usuario
+              aceptar: movimiento_retiro_aceptar_usuario
+              eliminar: movimiento_retiro_eliminar_usuario                  
               verifica: movimiento_retiro_verifica_usuario

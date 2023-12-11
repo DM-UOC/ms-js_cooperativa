@@ -7,7 +7,7 @@ import { CreateMovimientoDto } from '@models/movimientos/dto/create-movimiento.d
 import { UpdateMovimientoDto } from '@models/movimientos/dto/update-movimiento.dto';
 import { MovimientoEntity } from '@models/movimientos/entities/movimiento.entity';
 import { VerificaRetiroMovimientoDto } from '@models/movimientos/dto/verificaretirno-ms-movimiento.dto';
-import { MovimientoUsuarioDto } from '@models/movimientos/dto/movimiento.usuario.dto';
+import { AceptarRetiroMovimientoDto } from '@models/movimientos/dto/aceptar.retiro-movimiento.dto';
 
 @Injectable()
 export class MovimientosService {
@@ -110,6 +110,22 @@ export class MovimientosService {
     } catch (error) {
       throw error;
     }
+  }
+
+  aceptarRetiro(AceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
+    try {
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  eliminarRetiro() {
+    try {
+      
+    } catch (error) {
+      throw error;
+    }    
   }
 
   findAll(usuario_id: string) {
