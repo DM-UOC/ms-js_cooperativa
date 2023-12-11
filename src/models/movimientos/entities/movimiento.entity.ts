@@ -11,6 +11,8 @@ import {
 } from './enum.movimiento';
 import { IsNumber } from 'class-validator';
 
+import { UsuarioMovimientoEntity } from '@models/usuarios/entities/usuario.movimiento.entity';
+
 function seteaPropiedadesIngreso(ref: MovimientoEntity) {
   // * identificadores de movimiento...
   ref.tipo_movimiento = ENUM_IDENTICADOR_MOVIMIENTOS.INGRESO;
@@ -31,8 +33,8 @@ function seteaPropiedadesEgreso(ref: MovimientoEntity) {
 
 export class MovimientoEntity {
   readonly _id: ObjectId;
-  @prop()
-  usuario_id!: string;
+  @prop({ type: UsuarioMovimientoEntity, default: new UsuarioMovimientoEntity() })
+  usuario!: UsuarioMovimientoEntity;
   @prop({ trim: true })
   descripcion: string;
   @IsNumber()

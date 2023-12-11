@@ -66,15 +66,27 @@ export class MovimientosService {
     try {
       // * desestructura los parámetros...
       // * recoge el usuario...
-      const { id, tipo, descripcion, aprobado, valor, imagen, usuario } =
-        createMovimientoDto;
+      const {
+        id,
+        tipo,
+        descripcion,
+        aprobado,
+        valor,
+        imagen,
+        usuario,
+        nombres,
+      } = createMovimientoDto;
       // * proceso de chequeo de último registro...
       await this.verificaUltimoMovimiento(createMovimientoDto);
       // * retornamos el valor del saldo...
       const saldo = this.verificaOperacionSaldo(createMovimientoDto);
       // * retornamos el objeto...
       return this.movimientoEntity.create({
-        usuario_id: id,
+        usuario: {
+          _id: id,
+          identificacion: usuario,
+          nombre_completo: nombres,
+        },
         descripcion,
         tipo,
         valor,
@@ -112,9 +124,8 @@ export class MovimientosService {
     }
   }
 
-  aceptarRetiro(AceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
+  aceptarRetiro(aceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
     try {
-      
     } catch (error) {
       throw error;
     }
@@ -122,10 +133,9 @@ export class MovimientosService {
 
   eliminarRetiro() {
     try {
-      
     } catch (error) {
       throw error;
-    }    
+    }
   }
 
   findAll(usuario_id: string) {
@@ -189,7 +199,7 @@ export class MovimientosService {
               },
             },
           ],
-          as: 'usuario',
+          as: 'usuario_info',
         },
       },
       {
@@ -201,7 +211,7 @@ export class MovimientosService {
           saldo: 1,
           valor: 1,
           auditoria: 1,
-          usuario: {
+          usuario_info: {
             nombre_completo: 1,
           },
         },
