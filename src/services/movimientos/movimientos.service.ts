@@ -2,12 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { ConfigService } from '@nestjs/config';
+import { ObjectId, Types } from 'mongoose';
 
 import { CreateMovimientoDto } from '@models/movimientos/dto/create-movimiento.dto';
 import { UpdateMovimientoDto } from '@models/movimientos/dto/update-movimiento.dto';
 import { MovimientoEntity } from '@models/movimientos/entities/movimiento.entity';
 import { VerificaRetiroMovimientoDto } from '@models/movimientos/dto/verificaretirno-ms-movimiento.dto';
 import { AceptarRetiroMovimientoDto } from '@models/movimientos/dto/aceptar.retiro-movimiento.dto';
+import { EliminarRetiroMovimientoDto } from '@models/movimientos/dto/eliminar.retiro-movimiento.dto';
+
+import { UtilitariosService } from '@services/utilitarios/utilitarios.service';
 
 @Injectable()
 export class MovimientosService {
@@ -17,22 +21,15 @@ export class MovimientosService {
     private readonly configService: ConfigService,
   ) {}
 
-  private async verificaUltimoMovimiento(
-    createMovimientoDto: CreateMovimientoDto,
+  private async cambiaUltimoEstadoPorMovimientoId(
+    _id: ObjectId,
+    usuario: string,
   ) {
     try {
-      // * desestructura el objeto...
-      const { id, usuario } = createMovimientoDto;
-      // * verifica si tiene registros...
-      const ultimoMovimiento = await this.findOne(id);
-      // * si existe registro recoge el último saldo...
-      if (!ultimoMovimiento) return; // * no hace nada al no encontrar registros...
-      // * recoge el último saldo y agrega la propiedad...
-      createMovimientoDto['saldo'] = ultimoMovimiento.saldo;
       // * acttualiza el último movimiento su bandera último a false...
       await this.movimientoEntity.findByIdAndUpdate(
         {
-          _id: ultimoMovimiento._id,
+          _id,
         },
         {
           $set: {
@@ -49,23 +46,50 @@ export class MovimientosService {
     }
   }
 
-  private verificaOperacionSaldo(createMovimientoDto: CreateMovimientoDto) {
+  private verificaOperacionSaldo(
+    saldo: number,
+    tipo: string,
+    valor: number,
+  ): number {
     try {
-      // * desestructura el tipo de movimiento...
-      const { tipo, valor } = createMovimientoDto;
       // * verifica...
-      if (tipo === 'DEP') return createMovimientoDto.saldo + +valor;
+      if (tipo === 'DEP') return saldo + +valor;
       // * retorna la operación...
-      return createMovimientoDto.saldo - +valor;
+      return saldo - +valor;
     } catch (error) {
       throw error;
     }
   }
 
-  async create(createMovimientoDto: CreateMovimientoDto) {
+  private async retornaUltimoMovimiento(
+    usuario_id: string,
+  ): Promise<MovimientoEntity> {
+    // * retorna tiene registros...
+    return await this.findOne({
+      usuario_id,
+      ultimo: true,
+    });
+  }
+
+  private retornaUltimoSaldoPorMovimiento(
+    movimientoEntity: MovimientoEntity,
+  ): number {
+    try {
+      // * si el ultimo saldo es > 0 se asigna el nuevo parametro de saldo...
+      if (movimientoEntity) return movimientoEntity.saldo;
+      // * si el objeto es nulll retorna 0
+      return 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private async creaMovimeinto(
+    saldo: number,
+    createMovimientoDto: CreateMovimientoDto,
+  ): Promise<MovimientoEntity> {
     try {
       // * desestructura los parámetros...
-      // * recoge el usuario...
       const {
         id,
         tipo,
@@ -76,12 +100,8 @@ export class MovimientosService {
         usuario,
         nombres,
       } = createMovimientoDto;
-      // * proceso de chequeo de último registro...
-      await this.verificaUltimoMovimiento(createMovimientoDto);
-      // * retornamos el valor del saldo...
-      const saldo = this.verificaOperacionSaldo(createMovimientoDto);
-      // * retornamos el objeto...
-      return this.movimientoEntity.create({
+      // * crea un movimiento...
+      return await this.movimientoEntity.create({
         usuario: {
           _id: id,
           identificacion: usuario,
@@ -102,14 +122,47 @@ export class MovimientosService {
     }
   }
 
+  async create(createMovimientoDto: CreateMovimientoDto) {
+    try {
+      // * desestructura los parámetros...
+      const { id, tipo, valor, usuario } = createMovimientoDto;
+      // * retorna el ultimo saldo de un registro activo de movimiento...
+      const ultimoMovimientoEntity: MovimientoEntity =
+        await this.retornaUltimoMovimiento(id);
+      // * recoge el último saldo...
+      createMovimientoDto['saldo'] = this.retornaUltimoSaldoPorMovimiento(
+        ultimoMovimientoEntity,
+      );
+      // * actualiza a false el resto de movimientos...
+      await this.cambiaUltimoEstadoPorMovimientoId(
+        ultimoMovimientoEntity._id,
+        usuario,
+      );
+      // * retornamos el valor del saldo...
+      const saldo = this.verificaOperacionSaldo(
+        createMovimientoDto['saldo'],
+        tipo,
+        +valor,
+      );
+      // * retornamos el objeto...
+      return await this.creaMovimeinto(saldo, createMovimientoDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async crearRetiro(createMovimientoDto: CreateMovimientoDto) {
     try {
       // * desestructura los parámetros...
-      const { id, tipo, descripcion, aprobado, valor, usuario } =
+      const { id, tipo, descripcion, aprobado, valor, usuario, nombres } =
         createMovimientoDto;
       // * retornamos el objeto...
       return this.movimientoEntity.create({
-        usuario_id: id,
+        usuario: {
+          _id: id,
+          identificacion: usuario,
+          nombre_completo: nombres,
+        },
         descripcion,
         tipo,
         valor,
@@ -124,15 +177,62 @@ export class MovimientosService {
     }
   }
 
-  aceptarRetiro(aceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
+  async aceptarRetiro(aceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
     try {
+      // * desestructura el objeto argumento...
+      const { _id, observacion, usuario } = aceptarRetiroMovimientoDto;
+      // * retorna información del movimiento actual...
+      const movimientoRetiroEntity = await this.findOne({
+        _id: new Types.ObjectId(_id),
+      });
+      // * retorna el ultimo saldo de un registro activo de movimiento...
+      const ultimoMovimientoEntity: MovimientoEntity =
+        await this.retornaUltimoMovimiento(movimientoRetiroEntity.usuario._id);
+      // * recoge el último saldo...
+      aceptarRetiroMovimientoDto['saldo'] =
+        this.retornaUltimoSaldoPorMovimiento(ultimoMovimientoEntity);
+      // * actualizamos el registro....
+      // * retornamos el valor del saldo...
+      movimientoRetiroEntity.saldo = this.verificaOperacionSaldo(
+        aceptarRetiroMovimientoDto['saldo'],
+        movimientoRetiroEntity.tipo,
+        movimientoRetiroEntity.valor,
+      );
+      // * seteamos como último movimiento...
+      movimientoRetiroEntity.ultimo = true;
+      // * observacion...
+      movimientoRetiroEntity.observacion = observacion;
+      // * auditoria...
+      movimientoRetiroEntity.auditoria = {
+        fecha_actualiza: UtilitariosService.retornaFechaActualPersistencia(),
+        usuario_actualiza: usuario,
+      };
+      // * retorna el documento...
+      return await movimientoRetiroEntity.save();
     } catch (error) {
       throw error;
     }
   }
 
-  eliminarRetiro() {
+  async eliminarRetiro(
+    eliminarRetiroMovimientoDto: EliminarRetiroMovimientoDto,
+  ) {
     try {
+      // * desestructura el parametro objeto...
+      const { _id, observacion, usuario } = eliminarRetiroMovimientoDto;
+      // * retorna información del movimiento actual...
+      const movimientoRetiroEntity = await this.findOne({
+        _id: new Types.ObjectId(_id),
+      });
+      // * observacion...
+      movimientoRetiroEntity.observacion = observacion;
+      // * auditoria...
+      movimientoRetiroEntity.auditoria = {
+        fecha_actualiza: UtilitariosService.retornaFechaActualPersistencia(),
+        usuario_actualiza: usuario,
+      };
+      // * retorna el objeto en estado eliminado...
+      return await movimientoRetiroEntity.save();
     } catch (error) {
       throw error;
     }
@@ -146,16 +246,16 @@ export class MovimientosService {
     });
   }
 
-  findOne(usuario_id: string) {
-    return this.movimientoEntity.findOne({
-      usuario_id,
-      ultimo: true,
-    });
+  findOne(filtro: object) {
+    return this.movimientoEntity.findOne(filtro);
   }
 
   ultimoMovimientoPorUsuarioId(id: string) {
     // * retorna el usuario...
-    return this.findOne(id);
+    return this.findOne({
+      usuario_id: id,
+      ultimo: true,
+    });
   }
 
   movimientoPorUsuarioId(id: string) {
@@ -250,7 +350,10 @@ export class MovimientosService {
       // * se ejecuta la validación si es retiro...
       if (tipo.toLowerCase() !== tipoTransaccion.toLowerCase()) return null;
       // * retorna la última transacción del usuario...
-      const movimientoEntity = await this.findOne(usuario_id);
+      const movimientoEntity = await this.findOne({
+        usuario_id,
+        ultimo: true,
+      });
       // * si no tiene movimientos... no puede realizar un retiro
       if (!movimientoEntity) return { autorizado: true };
       // * verifica si el valor no es mayo al saldo...

@@ -38,6 +38,10 @@ export class UtilitariosService {
     return moment().format(UtilitariosService.FORMATOS.FECHA.YYYYMMDD_HHMM);
   }
 
+  static retornaFechaActualPersistencia() {
+    return moment().toDate();
+  }
+
   static verificaFechas(fechaComparar: Date, esMayor = false) {
     // * false -> la fecha Actual > a la indicada...
     if (!esMayor) return moment().isAfter(moment(fechaComparar));
