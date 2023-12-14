@@ -92,22 +92,30 @@ export class MovimientosController {
     cmd: config().microservicios.cooperativa.procesos.movimientos.usuario
       .ultimo,
   })
-  ultimoMovimientoPorUsuarioId(@Body() id: string) {
-    return this.movimientosService.ultimoMovimientoPorUsuarioId(id);
+  async ultimoMovimientoPorUsuarioId(@Body() id: string) {
+    return await this.movimientosService.ultimoMovimientoPorUsuarioId(id);
   }
 
   @MessagePattern({
     cmd: config().microservicios.cooperativa.procesos.movimientos.usuario.todos,
   })
-  movimientosPorUsuarioId(@Body() id: string) {
-    return this.movimientosService.movimientoPorUsuarioId(id);
+  async movimientosPorUsuarioId(@Body() id: string) {
+    return await this.movimientosService.movimientoPorUsuarioId(id);
   }
 
   @MessagePattern({
     cmd: config().microservicios.cooperativa.procesos.movimientos.retiros
       .general,
   })
-  movimientosRetiros() {
-    return this.movimientosService.movimientosRetiros();
+  async movimientosRetiros() {
+    return await this.movimientosService.retornaMovimientosPorTipo();
+  }
+
+  @MessagePattern({
+    cmd: config().microservicios.cooperativa.procesos.movimientos.depositos
+      .general,
+  })
+  async movimientosDepositos() {
+    return await this.movimientosService.retornaMovimientosPorTipo('dep');
   }
 }

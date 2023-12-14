@@ -62,11 +62,11 @@ export class MovimientosService {
   }
 
   private async retornaUltimoMovimiento(
-    usuario_id: string,
+    _id: string,
   ): Promise<MovimientoEntity> {
     // * retorna tiene registros...
     return await this.findOne({
-      usuario_id,
+      'usuario.id': _id,
       ultimo: true,
     });
   }
@@ -103,7 +103,7 @@ export class MovimientosService {
       // * crea un movimiento...
       return await this.movimientoEntity.create({
         usuario: {
-          _id: id,
+          id,
           identificacion: usuario,
           nombre_completo: nombres,
         },
@@ -134,10 +134,11 @@ export class MovimientosService {
         ultimoMovimientoEntity,
       );
       // * actualiza a false el resto de movimientos...
-      await this.cambiaUltimoEstadoPorMovimientoId(
-        ultimoMovimientoEntity._id,
-        usuario,
-      );
+      if (ultimoMovimientoEntity)
+        await this.cambiaUltimoEstadoPorMovimientoId(
+          ultimoMovimientoEntity._id,
+          usuario,
+        );
       // * retornamos el valor del saldo...
       const saldo = this.verificaOperacionSaldo(
         createMovimientoDto['saldo'],
@@ -159,7 +160,7 @@ export class MovimientosService {
       // * retornamos el objeto...
       return this.movimientoEntity.create({
         usuario: {
-          _id: id,
+          id,
           identificacion: usuario,
           nombre_completo: nombres,
         },
@@ -180,14 +181,15 @@ export class MovimientosService {
   async aceptarRetiro(aceptarRetiroMovimientoDto: AceptarRetiroMovimientoDto) {
     try {
       // * desestructura el objeto argumento...
-      const { _id, observacion, usuario } = aceptarRetiroMovimientoDto;
+      const { _id, observacion, usuario, imagen, aprobado } =
+        aceptarRetiroMovimientoDto;
       // * retorna información del movimiento actual...
       const movimientoRetiroEntity = await this.findOne({
         _id: new Types.ObjectId(_id),
       });
       // * retorna el ultimo saldo de un registro activo de movimiento...
       const ultimoMovimientoEntity: MovimientoEntity =
-        await this.retornaUltimoMovimiento(movimientoRetiroEntity.usuario._id);
+        await this.retornaUltimoMovimiento(movimientoRetiroEntity.usuario.id);
       // * recoge el último saldo...
       aceptarRetiroMovimientoDto['saldo'] =
         this.retornaUltimoSaldoPorMovimiento(ultimoMovimientoEntity);
@@ -198,6 +200,15 @@ export class MovimientosService {
         movimientoRetiroEntity.tipo,
         movimientoRetiroEntity.valor,
       );
+      // * cambia a false los est
+      await this.cambiaUltimoEstadoPorMovimientoId(
+        ultimoMovimientoEntity._id,
+        usuario,
+      );
+      // * seteamos como movimiento aprobado...
+      movimientoRetiroEntity.imagen = imagen;
+      // * seteamos como movimiento aprobado...
+      movimientoRetiroEntity.aprobado = aprobado;
       // * seteamos como último movimiento...
       movimientoRetiroEntity.ultimo = true;
       // * observacion...
@@ -238,29 +249,31 @@ export class MovimientosService {
     }
   }
 
-  findAll(usuario_id: string) {
-    return this.movimientoEntity.find({
-      usuario_id,
-      aprobado: true,
+  async findAll(id: string) {
+    // * retornando resultados...
+    return await this.movimientoEntity.find({
+      'usuario.id': id,
       'auditoria.activo': true,
     });
   }
 
-  findOne(filtro: object) {
-    return this.movimientoEntity.findOne(filtro);
+  async findOne(filtro: object) {
+    // * busca un único resultado por filtro...
+    return await this.movimientoEntity.findOne(filtro);
   }
 
-  ultimoMovimientoPorUsuarioId(id: string) {
+  async ultimoMovimientoPorUsuarioId(id: string) {
     // * retorna el usuario...
-    return this.findOne({
-      usuario_id: id,
+    return await this.movimientoEntity.findOne({
+      'usuario.id': id,
       ultimo: true,
+      'auditoria.activo': true,
     });
   }
 
-  movimientoPorUsuarioId(id: string) {
+  async movimientoPorUsuarioId(id: string) {
     // * retorna el usuario...
-    return this.findAll(id);
+    return await this.findAll(id);
   }
 
   private async retornaConsultaAggregate(
@@ -273,12 +286,14 @@ export class MovimientosService {
     }
   }
 
-  private retornaConsultaAggregateRetiros(): Array<any> {
+  private retornaConsultaAggregateTipoMovimientos(
+    tipoMovimiento = 'ret',
+  ): Array<any> {
     return [
       {
         $match: {
           tipo: {
-            $regex: 'ret',
+            $regex: tipoMovimiento,
             $options: 'i',
           },
           'auditoria.activo': true,
@@ -288,7 +303,7 @@ export class MovimientosService {
         $lookup: {
           from: 'usuarios',
           let: {
-            userId: { $toObjectId: '$usuario_id' },
+            userId: { $toObjectId: '$usuario.id' },
           },
           pipeline: [
             {
@@ -304,12 +319,14 @@ export class MovimientosService {
       },
       {
         $project: {
+          usuario: 1,
           descripcion: 1,
           tipo_movimiento: 1,
           tipo_descripcion: 1,
           aprobado: 1,
           saldo: 1,
           valor: 1,
+          imagen: 1,
           auditoria: 1,
           usuario_info: {
             nombre_completo: 1,
@@ -319,12 +336,12 @@ export class MovimientosService {
     ];
   }
 
-  movimientosRetiros() {
+  async retornaMovimientosPorTipo(tipo = 'ret') {
     try {
       // * filtro de búsqueda...
-      const filtro = this.retornaConsultaAggregateRetiros();
+      const filtro = this.retornaConsultaAggregateTipoMovimientos(tipo);
       // * retorna el consulta retiros...
-      return this.retornaConsultaAggregate(filtro);
+      return await this.retornaConsultaAggregate(filtro);
     } catch (error) {
       throw error;
     }
@@ -351,7 +368,7 @@ export class MovimientosService {
       if (tipo.toLowerCase() !== tipoTransaccion.toLowerCase()) return null;
       // * retorna la última transacción del usuario...
       const movimientoEntity = await this.findOne({
-        usuario_id,
+        'usuario.id': usuario_id,
         ultimo: true,
       });
       // * si no tiene movimientos... no puede realizar un retiro

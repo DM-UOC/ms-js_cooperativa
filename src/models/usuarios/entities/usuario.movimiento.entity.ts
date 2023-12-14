@@ -1,5 +1,10 @@
+import { prop } from '@typegoose/typegoose';
+
 export class UsuarioMovimientoEntity {
-  readonly _id: string;
-  readonly identificacion: string;
-  readonly nombre_completo: string;
+  @prop()
+  id!: string;
+  @prop()
+  identificacion!: string;
+  @prop()
+  nombre_completo!: string;
 }

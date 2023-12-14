@@ -33,7 +33,7 @@ function seteaPropiedadesEgreso(ref: MovimientoEntity) {
 
 export class MovimientoEntity {
   readonly _id: ObjectId;
-  @prop({ type: UsuarioMovimientoEntity, default: new UsuarioMovimientoEntity() })
+  @prop({ type: UsuarioMovimientoEntity, _id: false, default: new UsuarioMovimientoEntity() })
   usuario!: UsuarioMovimientoEntity;
   @prop({ trim: true })
   descripcion: string;
@@ -53,6 +53,7 @@ export class MovimientoEntity {
   imagen?: ImagenEntity;
   @prop({ default: true })
   aprobado: boolean;
+  @prop({ default: true })
   ultimo: boolean;
   @prop({ default: '' })
   observacion: string;

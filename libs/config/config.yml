@@ -42,6 +42,8 @@ production: &default
           deposito: dep
       procesos:
         movimientos:
+          depositos:
+            general: movimientos_depositos
           retiros:
             general: movimientos_retiros
           usuario:
@@ -51,7 +53,7 @@ production: &default
             retiro:
               crear: movimiento_retiro_crear_usuario
               aceptar: movimiento_retiro_aceptar_usuario
-              eliminar: movimiento_retiro_eliminar_usuario                  
+              eliminar: movimiento_retiro_eliminar_usuario
               verifica: movimiento_retiro_verifica_usuario
 stage: &stage
   <<: *default
@@ -73,6 +75,8 @@ development:
           deposito: dep
       procesos:
         movimientos:
+          depositos:
+            general: movimientos_depositos
           retiros:
             general: movimientos_retiros
           usuario:
@@ -82,5 +86,5 @@ development:
             retiro:
               crear: movimiento_retiro_crear_usuario
               aceptar: movimiento_retiro_aceptar_usuario
-              eliminar: movimiento_retiro_eliminar_usuario                  
+              eliminar: movimiento_retiro_eliminar_usuario
               verifica: movimiento_retiro_verifica_usuario
