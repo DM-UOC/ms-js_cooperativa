@@ -3,7 +3,7 @@ import { prop } from '@typegoose/typegoose';
 import { UsuarioMovimientoEntity } from '@models/usuarios/entities/usuario.movimiento.entity';
 import { AuditoriaEntity } from '@models/auditoria/auditoria.entity';
 import { SimuladorEntity } from './simulador.entity';
-import { ImagenEntity } from '@models/comun/entities/imagen.entity';
+import { AdministradorPrestamoEntity } from './administrador-prestamo.entity';
 
 export class PrestamoEntity {
   readonly id: string;
@@ -19,16 +19,16 @@ export class PrestamoEntity {
   monto!: number;
   @prop({})
   tiempo!: number;
-  @prop({ type: SimuladorEntity, _id: false })
+  @prop({ type: SimuladorEntity, _id: false, default: new SimuladorEntity() })
   simuladores?: SimuladorEntity[];
   @prop({ default: '' })
-  descripcion_usu!: string;
-  @prop({ default: '' })
-  observacion_adm?: string;
-  @prop({ default: true })
-  aprobado: boolean;
-  @prop({ type: ImagenEntity, _id: false, default: new ImagenEntity() })
-  imagen?: ImagenEntity;
+  descripcion!: string;
+  @prop({
+    _id: false,
+    type: AdministradorPrestamoEntity,
+    default: new AdministradorPrestamoEntity(),
+  })
+  administrador?: string;
   @prop({ type: AuditoriaEntity, _id: false, default: new AuditoriaEntity() })
   auditoria?: AuditoriaEntity;
 }
