@@ -10,13 +10,16 @@ import { PrestamosModule } from '@modules/prestamos/prestamos.module';
 
 import config from '@app/libs/config/config';
 
-@Module({ 
+@Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
     }),
-    MongoModule, MovimientosModule, PrestamosModule],
+    MongoModule,
+    MovimientosModule,
+    PrestamosModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

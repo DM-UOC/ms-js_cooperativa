@@ -28,7 +28,7 @@ export class PrestamoEntity {
     type: AdministradorPrestamoEntity,
     default: new AdministradorPrestamoEntity(),
   })
-  administrador?: string;
+  administrador?: AdministradorPrestamoEntity;
   @prop({ type: AuditoriaEntity, _id: false, default: new AuditoriaEntity() })
   auditoria?: AuditoriaEntity;
 }

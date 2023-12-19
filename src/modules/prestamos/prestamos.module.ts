@@ -4,9 +4,12 @@ import { TypegooseModule } from 'nestjs-typegoose';
 
 import { PrestamosController } from '@controllers/prestamos/prestamos.controller';
 
-import { PrestamoEntity } from '@app/src/models/prestamos/entities/prestamo.entity';
+import { MovimientosModule } from '@modules/movimientos/movimientos.module';
+
+import { PrestamoEntity } from '@models/prestamos/entities/prestamo.entity';
 
 import { PrestamosService } from '@services/prestamos/prestamos.service';
+import { PrestamosValidacionService } from '@services/prestamos/prestamos-validacion.service';
 
 import config from '@app/libs/config/config';
 
@@ -25,8 +28,9 @@ import config from '@app/libs/config/config';
       config().servidor.mongo.coopeartiva.nombre,
     ),
     ConfigModule,
+    MovimientosModule,
   ],
   controllers: [PrestamosController],
-  providers: [PrestamosService],
+  providers: [PrestamosService, PrestamosValidacionService],
 })
 export class PrestamosModule {}

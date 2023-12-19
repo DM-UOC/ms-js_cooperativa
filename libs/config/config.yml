@@ -41,6 +41,8 @@ production: &default
           retiro: ret
           deposito: dep
       procesos:
+        prestamos:
+          validacion: prestamos_validacion
         movimientos:
           depositos:
             general: movimientos_depositos
@@ -74,6 +76,8 @@ development:
           retiro: ret
           deposito: dep
       procesos:
+        prestamos:
+          validacion: prestamos_validacion
         movimientos:
           depositos:
             general: movimientos_depositos

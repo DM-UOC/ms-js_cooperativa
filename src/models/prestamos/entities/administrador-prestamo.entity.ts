@@ -10,6 +10,8 @@ export class AdministradorPrestamoEntity {
   fecha_aprobacion?: Date;
   @prop({ default: false })
   aprobado?: boolean;
+  @prop({ default: false })
+  terminado?: boolean;
   @prop({ type: ImagenEntity, _id: false, default: new ImagenEntity() })
   imagen?: ImagenEntity;
   @prop({ type: AuditoriaEntity, _id: false, default: new AuditoriaEntity() })
