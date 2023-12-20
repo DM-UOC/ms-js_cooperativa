@@ -26,7 +26,7 @@ import config from '@app/libs/config/config';
     ConfigModule,
   ],
   controllers: [MovimientosController],
-  providers: [MovimientosService],
+  providers: [MovimientosService, MovimientosValidacionService],
   exports: [MovimientosValidacionService],
 })
 export class MovimientosModule {}

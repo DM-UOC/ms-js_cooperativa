@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-
 import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'fs';
+
 import * as moment from 'moment';
 import * as path from 'path';
+import * as accounting from 'accounting';
 
 // import { Globals } from '@app/libs/config/globals';
 // declare const global: Globals;
@@ -112,5 +113,9 @@ export class UtilitariosService {
       force: true,
       recursive: true,
     });
+  }
+
+  static retornaFormatoNumerico(valor: string) {
+    return accounting.unformat(valor);
   }
 }

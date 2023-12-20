@@ -8,6 +8,7 @@ import { PrestamoEntity } from '@models/prestamos/entities/prestamo.entity';
 import { ValidacionMsPrestamoDto } from '@models/prestamos/dto/validacion-ms-prestamo.dto';
 
 import { MovimientosValidacionService } from '@services/movimientos/movimientos-validacion.service';
+import { UtilitariosService } from '../utilitarios/utilitarios.service';
 
 @Injectable()
 export class PrestamosValidacionService {
@@ -36,22 +37,39 @@ export class PrestamosValidacionService {
     }
   }
 
+  private validacionExistenciaPrestamo(errores: string[]) {
+    try {
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async validacionPrestamo(validacionMsPrestamoDto: ValidacionMsPrestamoDto) {
     try {
+      const errores = {
+        montoErrores: {
+          monto: []
+        }
+      }
       // * desestructura el objeto...
-      const { valor, usuario_id } = validacionMsPrestamoDto;
+      const { monto, usuario_id } = validacionMsPrestamoDto;
       // * retorna el objeto úlitmo objeto prestamo...
       const prestamoUsuarioEntity = await this.retornaPrestamoPorUsuarioId({
         'usuario.id': usuario_id,
       });
-      // * si el objeto es null no hay prestamo activo...
-      if (!prestamoUsuarioEntity) return null;
+      // * verifica monto solicitado vs depositado...
+      const cumpleDeposito = await this.movimientosValidacionService.validacionMontoPrestamo(UtilitariosService.retornaFormatoNumerico(monto), usuario_id);
+      // * si monto solicitado no supera el valor depositado...
+      if (!cumpleDeposito) errores.montoErrores.monto.push("¡El monto solicitado no cumple con el requisito de tener 3 veces lo depositado contra el monto solicitado! Verifique.");
       // * empieza la validacion...
       // * si tiene prestamos activos...
-      if (!this.verificaPrestamoTerminadoUsuario(prestamoUsuarioEntity))
-        return { noAutorizado: true };
-      // * si monto solicitado no supera el valor depositado...
-      if (!this.movimientosValidacionService.validacionMontoPrestamo(parseFloat(valor),usuario_id)) return { noAutorizado: true };
+      if(prestamoUsuarioEntity) if (!this.verificaPrestamoTerminadoUsuario(prestamoUsuarioEntity)) errores.montoErrores.monto.push("Usted tiene un préstamo activo");
+      // * retornamos los errores sobre el monto...
+      // * validamos si el arreglo de errores contiene información, caso contrario retorna null...
+      if(errores.montoErrores.monto.length === 0) return null;
+      // * existe errores, devuelve el objeto...
+      return errores;
     } catch (error) {
       throw error;
     }

@@ -23,6 +23,8 @@ export class PrestamoEntity {
   simuladores?: SimuladorEntity[];
   @prop({ default: '' })
   descripcion!: string;
+  @prop({ default: false })
+  generado: boolean;
   @prop({
     _id: false,
     type: AdministradorPrestamoEntity,
