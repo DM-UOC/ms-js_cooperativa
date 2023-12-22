@@ -43,6 +43,7 @@ production: &default
       procesos:
         prestamos:
           validacion: prestamos_validacion
+          crear: prestamos_crear
         movimientos:
           depositos:
             general: movimientos_depositos
@@ -78,6 +79,7 @@ development:
       procesos:
         prestamos:
           validacion: prestamos_validacion
+          crear: prestamos_crear
         movimientos:
           depositos:
             general: movimientos_depositos

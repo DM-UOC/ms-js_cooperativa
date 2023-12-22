@@ -118,4 +118,8 @@ export class UtilitariosService {
   static retornaFormatoNumerico(valor: string) {
     return accounting.unformat(valor);
   }
+
+  static retornaValorPrecisionDecimales(valor: number, precision = 2) {
+    return accounting.unformat(accounting.toFixed(valor, precision));
+  }
 }
